@@ -1,0 +1,14 @@
+---
+- name: check nvm installed
+
+- name: grab nvm source
+
+- name: install nvm
+
+- name: check node versions
+
+- name: install node versions
+
+- name: setup default node
+
+- name: install default npm packages (grunt etc ...)
