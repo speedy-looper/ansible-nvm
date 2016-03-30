@@ -22,19 +22,16 @@
   with_items:
     - 'export NVM_DIR="$HOME/.nvm"'
     - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
-  register: test
-
-- debug: var=test
 
 - name: Install {{ nvm.node_version }}
-  shell: source {{ nvm.shell_source }} && nvm install {{ nvm.node_version }}
+  shell: . {{ nvm.shell_source }} && nvm install {{ nvm.node_version }}
   args:
     executable: /bin/bash
   register: nvm_install_result
   changed_when: "'is already installed.' not in nvm_install_result.stdout"
 
 - name: Check if {{ nvm.node_version }} is the default node version
-  shell: source {{ nvm.shell_source }} && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
+  shell: . {{ nvm.shell_source }} && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
   args:
     executable: /bin/bash
   register: nvm_check_default
@@ -42,7 +39,7 @@
   ignore_errors: True
 
 - name: Set default node version to {{ nvm.node_version }}
-  shell: source {{ nvm.shell_source }} && nvm alias default {{ nvm.node_version }}
+  shell: . {{ nvm.shell_source }} && nvm alias default {{ nvm.node_version }}
   args:
     executable: /bin/bash
   when: nvm_check_default|failed
