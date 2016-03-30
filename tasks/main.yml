@@ -8,7 +8,6 @@
     - libssl-dev
 
 - name: download nvm
-  become_user: "{{ nvm.user }}"
   git:
     repo=https://github.com/creationix/nvm.git
     dest=~/.nvm
@@ -22,11 +21,15 @@
   changed_when: False
 
 - name: Source nvm in ~/.bash_profile
-  become_user: "{{ nvm.user }}"
   lineinfile: >
     dest=~/.base_profile
     line="source ~/.nvm/nvm.sh"
     create=yes
+
+- shell: ls ~/.nvm && cat ~/.nvm.sh && cat ~/.bash_profile
+  register: debug_info
+
+- debug: var=debug_info
 
 - name: Install {{ nvm.node_version }}
   shell: . ~/.bash_profile && nvm install {{ nvm.node_version }}
