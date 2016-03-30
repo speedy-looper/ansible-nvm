@@ -12,9 +12,10 @@ Role Variables
 --------------
 
 - node:
-  - versions:
+  user: deploy
+  versions:
     - 0.12.9
-  - default: 0
+  default: 0
 
 Dependencies
 ------------
@@ -37,3 +38,5 @@ Author Information
 ------------------
 
 Speed-of-light @ Speedy-looper :)
+
+Any contriubtion are welcome.

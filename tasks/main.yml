@@ -1,14 +1,37 @@
 ---
-- name: check nvm installed
+- name: Install dependencies
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+  with_items:
+    - git
+    - curl
+    - build-essential
+    - libssl-dev
 
-- name: grab nvm source
+- name: download nvm
+  become_user: {{ nvm.user }}
+  git:
+    repo=https://github.com/creationix/nvm.git
+    dest=~/.nvm
+    version={{ nvm.version }}
 
-- name: install nvm
+- name: Source nvm in ~/.bash_profile
+  become_user: {{ nvm.user }}
+  lineinfile: >
+    dest=~/.base_profile
+    line="source ~/.nvm/nvm.sh"
+    create=yes
 
-- name: check node versions
+- name: Install {{ nvm.node_version }}
+  shell: . ~/.bash_profile && nvm install {{ nvm.node_version }}
+  register: nvm_install_result
+  changed_when: "'is already installed.' not in nvm_install_result.stdout"
 
-- name: install node versions
+- name: Check if {{ nvm.node_version }} is the default node version
+  shell: . ~/.bash_profile && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
+  register: nvm_check_default
+  changed_when: False
+  ignore_errors: True
 
-- name: setup default node
-
-- name: install default npm packages (grunt etc ...)
+- name: Set default node version to {{ nvm.node_version }}
+  shell: . ~/.bash_profile && nvm alias default {{ nvm.node_version }}
+  when: nvm_check_default|failed

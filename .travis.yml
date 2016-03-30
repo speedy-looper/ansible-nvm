@@ -1,28 +1,23 @@
----
 language: python
-python: "2.7"
-
-sudo: false
-
-# Install ansible
+python: '2.7'
+sudo: required
 addons:
   apt:
     packages:
     - python-pip
-
 install:
-  # Install ansible
-  - pip install ansible
-
-  # Check ansible version
-  - ansible --version
-
-  # Create ansible.cfg with correct roles_path
-  - printf '[defaults]\nroles_path=../' >ansible.cfg
-
+- pip install ansible
+- ansible --version
+- printf '[defaults]\nroles_path=../' >ansible.cfg
+- sudo useradd deploy -m -d /home/deploy -s /bin/bash
+- sudo chgrp ```id -gn``` /home/deploy
+- sudo chown -R deploy /home/deploy
 script:
-  # Basic role syntax check
-  - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
-
+- ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+- ansible-playbook tests/test.yml -i tests/inventory --connection=local
+- |
+  ansible-playbook tests/test.yml -i tests/inventory --connection=local | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' && exit 0) || (echo 'Idempotence test: fail' && exit 1)
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  slack:
+    secure: S4EyaALbFmXbyim7qoTZxHEJKnQ+XBtZZSxhYE3weXEIUEj52EHgR9z1/u9PMz1+0IGvrdLxrAFpM0wH+0OqC3OfbZONTsTE+/Rcb4n0wpLSCEXWO+bLHH0EoRwrzKKo9Jpd9CePZFwPk7SBmHCKEjBpANvqC4KfIwvAkQFDBxl6sGvNkrtYTv8f0Z2tr6BcmqMG9T9sAZjZnj32mSQjNhosvn6rYc3FK2swXtmaPyDzhZhjw+Fy0sUU5SCKDcSbeoz10dY9+CR/mkMPRs1DHm1tOD8gQ/i7+f680hrW5XtqHROzemcCV/zVNAqPtEt2MJdv/gUg1GtmwYGsFM3T+c8GkgVEg5lCVQW/bTzrQQRP2oY2d2oubovtO78G3zk8YEew+V1lM1ZHpSjQfqD+DFM6KOYGG0/1Dpasit/sU/lzDf50Y8Um0aFIyHiXxCVZWxgkODEUkqo/41H1blJDeFJVrrhwIDcydhZt9JrM012O6iYFvWxWO3W56QFvpNKyCrqqDFG+rFnGHk/7ftggStET9Cf0wAQdpFoaEBQQqOEY2dwWnkqFAIUUzptt9hpiHScGI8/75oD/XuE9cCcPJQBJGrqhd2hkXdwk5ELU2W+ttzrmDKsBaGWBUfE5CW5pCL0HQuln8qRRzRPkjhfqedcYa3R9LUGmX6LqL14c9Vc=
