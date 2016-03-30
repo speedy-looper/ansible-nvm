@@ -11,11 +11,12 @@ N/A
 Role Variables
 --------------
 
-- node:
-  user: deploy
-  versions:
-    - 0.12.9
-  default: 0
+    ---
+    nvm:
+      user: deploy
+      verson: master
+      node_version: 0.12.9
+
 
 Dependencies
 ------------
