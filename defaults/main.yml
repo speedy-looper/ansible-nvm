@@ -2,4 +2,4 @@
 nvm:
   version: master
   node_version: 0.12.9
-  shell_source: ~/.bash_profile
+  shell_source: /etc/profile
