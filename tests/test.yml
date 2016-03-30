@@ -2,5 +2,6 @@
 - hosts: localhost
   remote_user: root
   become_user: deploy
+  become: yes
   roles:
     - ansible-nvm
