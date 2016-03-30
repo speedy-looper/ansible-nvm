@@ -10,9 +10,13 @@
 - name: ensure {{ nvm.shell_source }}
   file:
     state=touch
-    path={{ nvm.shell_source}}
+    path={{ nvm.shell_source }}
     mode="u=rw"
   changed_when: False
+  always_run: True
+  register: shell_src_res
+
+- debug: var=shell_src_res
 
 - name: check nvm installed
   shell: . {{ nvm.shell_source }} && nvm
