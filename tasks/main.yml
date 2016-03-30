@@ -11,10 +11,9 @@
   file:
     state=touch
     path={{ nvm.shell_source }}
-    mode="u=rw"
+    mode=0755
   changed_when: False
   always_run: True
-  register: shell_src_res
 
 - debug: var=shell_src_res
 
