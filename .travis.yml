@@ -12,6 +12,8 @@ install:
   - sudo useradd deploy -m -d /home/deploy -s /bin/bash
   - sudo chgrp ```id -gn``` /home/deploy
   - sudo chown -R deploy /home/deploy
+  - sudo rm -rf /home/deploy/.nvm
+  - sudo rm -rf ~/.nvm
 
 script:
   - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
@@ -20,7 +22,7 @@ script:
   - |
     ansible-playbook tests/test.yml -i tests/inventory --connection=local | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' && exit 0) || (echo 'Idempotence test: fail' && exit 1)
   - sudo su - deploy -c 'whoami'
-  - sudo su - deploy -c 'which nvm'
+  - sudo su - deploy -c 'nvm --version'
   - sudo su - deploy -c 'nvm ls'
 
 notifications:
