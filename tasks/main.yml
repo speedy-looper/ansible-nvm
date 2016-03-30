@@ -7,11 +7,13 @@
     - build-essential
     - libssl-dev
 
-- name: download nvm
-  git:
-    repo=https://github.com/creationix/nvm.git
-    dest=~/.nvm
-    version={{ nvm.version }}
+- name: check nvm installed
+  shell: nvm
+  args:
+    executable: /bin/bash
+  register: nvm_status
+  changed_when: False
+  ignore_errors: True
 
 - name: ensure ~/.bash_profile
   file:
@@ -20,21 +22,31 @@
     mode="u=rw"
   changed_when: False
 
-- name: Source nvm in ~/.bash_profile
-  lineinfile: >
-    dest=~/.base_profile
-    line="source ~/.nvm/nvm.sh"
-    create=yes
+- name: add tmp directory
+  file:
+    path=~/tmp
+    state=directory
+    mode=0755
 
-- shell: ls ~/.nvm && cat ~/.nvm.sh && cat ~/.bash_profile
+- name: download nvm install script
+  get_url:
+    url=https://raw.githubusercontent.com/creationix/nvm/{{ nvm.version }}/install.sh
+    dest=~/tmp/nvm.sh
+    mode=0744
+  when: nvm_status|failed
+
+- name: install nvm
+  command: ~/tmp/nvm.sh
+  when: nvm_status|failed
+
+- name: debug
+  shell: . /etc/profile && ls ~/
   register: debug_info
 
 - debug: var=debug_info
 
 - name: Install {{ nvm.node_version }}
-  shell: . ~/.bash_profile && nvm install {{ nvm.node_version }}
-  args:
-    executable: /bin/bash
+  shell: . /etc/profile && nvm install {{ nvm.node_version }}
   register: nvm_install_result
   changed_when: "'is already installed.' not in nvm_install_result.stdout"
 
