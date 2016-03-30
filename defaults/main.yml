@@ -1,6 +1,5 @@
 ---
 nvm:
-  user: deploy
   version: master
   node_version: 0.12.9
-  shell_source: /etc/profile
+  shell_source: ~/.bash_profile

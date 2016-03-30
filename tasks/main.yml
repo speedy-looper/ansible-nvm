@@ -7,6 +7,13 @@
     - build-essential
     - libssl-dev
 
+- name: ensure {{ nvm.shell_source }}
+  file:
+    state=touch
+    path={{ nvm.shell_source}}
+    mode="u=rw"
+  changed_when: False
+
 - name: check nvm installed
   shell: . {{ nvm.shell_source }} && nvm
   register: nvm_status
@@ -18,6 +25,9 @@
     path=~/tmp
     state=directory
     mode=0755
+  register: tmp_detail
+
+- debug: var=tmp_detail
 
 - debug: var=nvm_status
 
@@ -26,16 +36,22 @@
     url=https://raw.githubusercontent.com/creationix/nvm/{{ nvm.version }}/install.sh
     dest=~/tmp/nvm.sh
     mode=0744
-  when: "'command not found' in nvm_status.stderr"
+  when: "{{ nvm_status.failed == true }}"
 
 - name: install nvm
-  command: ~/tmp/nvm.sh
-  when: "'command not found' in nvm_status.stderr"
+  shell: . {{ nvm.shell_source }} && ~/tmp/nvm.sh
+  register: install_result
+  when: "{{ nvm_status.failed == true }}"
+
+- debug: var=install_result
+
+- name: check {{ nvm.node_version }} status
+  shell: . {{ nvm.shell_source }} && nvm use {{ nvm.node_version }}
+  register: nvm_version_test
 
 - name: Install {{ nvm.node_version }}
   shell: . {{ nvm.shell_source }} && nvm install {{ nvm.node_version }}
-  register: nvm_install_result
-  changed_when: "'is already installed.' not in nvm_install_result.stdout"
+  when: "{{ nvm_version_test.rc != 0 }}"
 
 - name: Check if {{ nvm.node_version }} is the default node version
   shell: . {{ nvm.shell_source }} && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
