@@ -8,14 +8,14 @@
     - libssl-dev
 
 - name: download nvm
-  become_user: {{ nvm.user }}
+  become_user: "{{ nvm.user }}"
   git:
     repo=https://github.com/creationix/nvm.git
     dest=~/.nvm
     version={{ nvm.version }}
 
 - name: Source nvm in ~/.bash_profile
-  become_user: {{ nvm.user }}
+  become_user: "{{ nvm.user }}"
   lineinfile: >
     dest=~/.base_profile
     line="source ~/.nvm/nvm.sh"
