@@ -14,6 +14,13 @@
     dest=~/.nvm
     version={{ nvm.version }}
 
+- name: ensure ~/.bash_profile
+  file:
+    state=touch
+    path=~/.bash_profile
+    mode="u=rw"
+  changed_when: False
+
 - name: Source nvm in ~/.bash_profile
   become_user: "{{ nvm.user }}"
   lineinfile: >
