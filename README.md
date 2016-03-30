@@ -2,6 +2,8 @@ Role Name
 =========
 
 NVM installer
+[![Build
+Status](https://travis-ci.org/speedy-looper/ansible-nvm.svg?branch=master)](https://travis-ci.org/speedy-looper/ansible-nvm)
 
 Requirements
 ------------
