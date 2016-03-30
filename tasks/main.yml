@@ -7,61 +7,42 @@
     - build-essential
     - libssl-dev
 
-- name: ensure {{ nvm.shell_source }}
-  file:
-    state=touch
-    path={{ nvm.shell_source }}
-    mode=0755
-  changed_when: False
-  always_run: True
+- name: download nvm
+  git: >
+    repo=https://github.com/creationix/nvm.git
+    dest=~/.nvm
+    version={{ nvm.version }}
 
-- debug: var=shell_src_res
+- name: Source nvm in {{ nvm.shell_source }}
+  lineinfile: >
+    dest=~/.base_profile
+    line={{ item }}
+    create=yes
+    state=present
+  with_items:
+    - 'export NVM_DIR="$HOME/.nvm"'
+    - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+  register: test
 
-- name: check nvm installed
-  shell: . {{ nvm.shell_source }} && nvm
-  register: nvm_status
-  changed_when: False
-  ignore_errors: True
-
-- name: add tmp directory
-  file:
-    path=~/tmp
-    state=directory
-    mode=0755
-  register: tmp_detail
-
-- debug: var=tmp_detail
-
-- debug: var=nvm_status
-
-- name: download nvm install script
-  get_url:
-    url=https://raw.githubusercontent.com/creationix/nvm/{{ nvm.version }}/install.sh
-    dest=~/tmp/nvm.sh
-    mode=0744
-  when: "{{ nvm_status.failed == true }}"
-
-- name: install nvm
-  shell: . {{ nvm.shell_source }} && ~/tmp/nvm.sh
-  register: install_result
-  when: "{{ nvm_status.failed == true }}"
-
-- debug: var=install_result
-
-- name: check {{ nvm.node_version }} status
-  shell: . {{ nvm.shell_source }} && nvm use {{ nvm.node_version }}
-  register: nvm_version_test
+- debug: var=test
 
 - name: Install {{ nvm.node_version }}
   shell: . {{ nvm.shell_source }} && nvm install {{ nvm.node_version }}
-  when: "{{ nvm_version_test.rc != 0 }}"
+  args:
+    executable: /bin/bash
+  register: nvm_install_result
+  changed_when: "'is already installed.' not in nvm_install_result.stdout"
 
 - name: Check if {{ nvm.node_version }} is the default node version
   shell: . {{ nvm.shell_source }} && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
+  args:
+    executable: /bin/bash
   register: nvm_check_default
   changed_when: False
   ignore_errors: True
 
 - name: Set default node version to {{ nvm.node_version }}
   shell: . {{ nvm.shell_source }} && nvm alias default {{ nvm.node_version }}
+  args:
+    executable: /bin/bash
   when: nvm_check_default|failed
