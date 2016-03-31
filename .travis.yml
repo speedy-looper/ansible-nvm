@@ -13,6 +13,7 @@ install:
   - sudo useradd deploy -m -d /home/deploy -s /bin/bash
   - sudo chgrp ```id -gn``` /home/deploy
   - sudo chown -R deploy /home/deploy
+  - sudo echo "deploy ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers
   - sudo rm -rf /home/deploy/.nvm
   - sudo rm -rf ~/.nvm
 

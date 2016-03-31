@@ -23,10 +23,15 @@
     - 'export NVM_DIR="$HOME/.nvm"'
     - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
 
+- name: check node version {{ nvm.node_version }}
+  shell: . {{ nvm.shell_source }} && nvm use {{ nvm.node_version }}
+  register: nvm_use_test
+  changed_when: False
+  ignore_errors: True
+
 - name: Install {{ nvm.node_version }}
   shell: . {{ nvm.shell_source }} && nvm install {{ nvm.node_version }}
-  register: nvm_install_result
-  changed_when: "'is already installed.' not in nvm_install_result.stdout"
+  when: "'N/A' in nvm_use_test.stderr"
 
 - name: Check if {{ nvm.node_version }} is the default node version
   shell: . {{ nvm.shell_source }} && nvm ls | grep -e 'default -> {{ nvm.node_version }}'
